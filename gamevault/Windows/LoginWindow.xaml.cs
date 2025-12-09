@@ -559,7 +559,7 @@ namespace gamevault.Windows
             {
                 if (App.IsWindowsPackage == false)
                 {
-                    var response = await WebHelper.BaseGetAsync("https://api.github.com/repos/Phalcode/gamevault-app/releases");
+                    var response = await WebHelper.BaseGetAsync("https://api.github.com/repos/eliaswen/gamevault-app/releases");
                     dynamic obj = JsonNode.Parse(response);
                     string version = (string)obj[0]["tag_name"];
                     if (Convert.ToInt32(version.Replace(".", "")) > Convert.ToInt32(SettingsViewModel.Instance.Version.Replace(".", "")))
