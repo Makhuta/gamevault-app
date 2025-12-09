@@ -1,37 +1,53 @@
 name: Deployment Pipeline for master branch
-
 on:
   push:
     branches:
       - master
-  workflow_dispatch:
-
-  
 jobs:
   deploy:
     permissions: write-all
     runs-on: windows-latest
     outputs:
       version: ${{ steps.release.outputs.version }}
-
+    
     steps:
     - name: Checkout repository
       id: checkout
       uses: actions/checkout@v2
-
+      
     - name: Set up .NET
       id: setup
       uses: actions/setup-dotnet@v3.2.0
       with:
         dotnet-version: '8.x'
-
+        
     - name: Build .NET solution
       id: build
       run: |
         dotnet build gamevault.sln --configuration Release
         7z a GameVault.zip gamevault/bin
+      
+    - name: Create Github Tag & Release
+      id: release
+      uses: CupOfTea696/gh-action-auto-release@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        tag: "$semver.0"
+        
+    - name: Upload Release Artifact
+      id: upload
+      uses: actions/upload-release-asset@v1
+      with:
+        asset_path: GameVault.zip
+        asset_name: GameVault.zip
+        asset_content_type: application/zip
+        upload_url: ${{steps.release.outputs.upload_url}}
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
         
     - uses: actions/upload-artifact@v4
+      name: Upload Action Artifact
       with:
         path: GameVault.zip
         compression-level: 9
