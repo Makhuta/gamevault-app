@@ -72,7 +72,7 @@ namespace gamevault.Windows
                 string result = Preferences.Get(AppConfigKey.AdditionalRequestHeaders, ProfileManager.ProfileConfigFile);
                 var objResult = JsonSerializer.Deserialize<ObservableCollection<RequestHeader>>(result);
                 ViewModel.AdditionalRequestHeaders = objResult;
-                WebHelper.SetAdditionalRequestHeaders(ViewModel.AdditionalRequestHeaders?.ToArray());
+                WebHelper.SetAdditionalDefaultRequestHeaders(ViewModel.AdditionalRequestHeaders?.ToList());
             }
             catch { }
             if (!SkipBootTasks)
@@ -646,7 +646,7 @@ namespace gamevault.Windows
             try
             {
                 Preferences.Set(AppConfigKey.AdditionalRequestHeaders, ViewModel.AdditionalRequestHeaders.Where(rh => !string.IsNullOrWhiteSpace(rh.Name) && !string.IsNullOrWhiteSpace(rh.Value)), ProfileManager.ProfileConfigFile);
-                WebHelper.SetAdditionalRequestHeaders(ViewModel.AdditionalRequestHeaders?.ToArray());
+                WebHelper.SetAdditionalDefaultRequestHeaders(ViewModel.AdditionalRequestHeaders?.ToList());
                 ViewModel.LoginStepIndex = (int)LoginStep.ChooseProfile;
                 ViewModel.AppBarText = "Successfully saved additional request headers";
             }

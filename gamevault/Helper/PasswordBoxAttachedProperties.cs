@@ -210,13 +210,8 @@ namespace gamevault.Helper
             if (sender is not TextBox textBox || !GetIsPassword(textBox))
                 return;
 
-            // Prevent spaces in password
-            if (e.Key == Key.Space)
-            {
-                e.Handled = true;
-            }
             // Handle Ctrl+A select all
-            else if (e.Key == Key.A && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            if (e.Key == Key.A && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 textBox.SelectAll();
                 e.Handled = true;

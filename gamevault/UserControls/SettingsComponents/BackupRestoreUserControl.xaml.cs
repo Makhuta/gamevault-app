@@ -67,8 +67,12 @@ namespace gamevault.UserControls.SettingsComponents
             this.IsEnabled = false;
             try
             {
+                Dictionary<string,string>? additionalRequestHeaders = new Dictionary<string, string>
+                {
+                    { "X-Database-Password", uiBackupDatabasePassword.Password }
+                };
                 HttpClientDownloadWithProgress httpClientDownloadWithProgress = new HttpClientDownloadWithProgress(@$"{SettingsViewModel.Instance.ServerUrl}/api/admin/database/backup",
-                    uiBackupDirectory.Text, $"DB_Backup_{DateTime.Now.ToString()}.db", new KeyValuePair<string, string>("X-Database-Password", uiBackupDatabasePassword.Password));
+                    uiBackupDirectory.Text, $"DB_Backup_{DateTime.Now.ToString()}.db", additionalRequestHeaders);
 
                 await httpClientDownloadWithProgress.StartDownload();
                 MainWindowViewModel.Instance.AppBarText = "Successfully performed database backup.";
@@ -125,7 +129,7 @@ namespace gamevault.UserControls.SettingsComponents
             this.IsEnabled = false;
             try
             {
-                await WebHelper.UploadFileAsync(@$"{SettingsViewModel.Instance.ServerUrl}/api/admin/database/restore", File.OpenRead(uiRestoreFile.Tag.ToString()), uiRestoreFile.Text, new RequestHeader[] { new RequestHeader() { Name = "X-Database-Password", Value = uiRestoreDatabasePassword.Password } });
+                await WebHelper.UploadFileAsync(@$"{SettingsViewModel.Instance.ServerUrl}/api/admin/database/restore", File.OpenRead(uiRestoreFile.Tag.ToString()), uiRestoreFile.Text, new List<RequestHeader> { new RequestHeader() { Name = "X-Database-Password", Value = uiRestoreDatabasePassword.Password } });
                 MainWindowViewModel.Instance.AppBarText = "Successfully uploaded database file";
             }
             catch (HttpRequestException httpEx)

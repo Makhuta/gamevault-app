@@ -70,7 +70,7 @@ namespace gamevault.Helper.Integrations
                 string[] auth = WebHelper.GetCredentials();
 
                 string url = @$"{SettingsViewModel.Instance.ServerUrl}/api/savefiles/user/{LoginManager.Instance.GetCurrentUser()!.ID}/game/{gameId}";
-                using (HttpResponseMessage response = await WebHelper.GetAsync(@$"{SettingsViewModel.Instance.ServerUrl}/api/savefiles/user/{LoginManager.Instance.GetCurrentUser()!.ID}/game/{gameId}", HttpCompletionOption.ResponseHeadersRead))
+                using (HttpResponseMessage response = await WebHelper.GetAsync(@$"{SettingsViewModel.Instance.ServerUrl}/api/savefiles/user/{LoginManager.Instance.GetCurrentUser()!.ID}/game/{gameId}", null, HttpCompletionOption.ResponseHeadersRead))
                 {
                     response.EnsureSuccessStatusCode();
                     string fileName = response.Content.Headers.ContentDisposition.FileName.Split('_')[1].Split('.')[0];
@@ -356,7 +356,7 @@ namespace gamevault.Helper.Integrations
                 string installationId = GetGameInstallationId(installationDir);
                 using (MemoryStream memoryStream = await FileToMemoryStreamAsync(saveFilePath))
                 {
-                    await WebHelper.UploadFileAsync(@$"{SettingsViewModel.Instance.ServerUrl}/api/savefiles/user/{LoginManager.Instance.GetCurrentUser()!.ID}/game/{gameId}", memoryStream, "x.zip", new RequestHeader[] { new RequestHeader() { Name = "X-Installation-Id", Value = installationId } });
+                    await WebHelper.UploadFileAsync(@$"{SettingsViewModel.Instance.ServerUrl}/api/savefiles/user/{LoginManager.Instance.GetCurrentUser()!.ID}/game/{gameId}", memoryStream, "x.zip", new List<RequestHeader> { new RequestHeader() { Name = "X-Installation-Id", Value = installationId } });
                 }
             }
             catch

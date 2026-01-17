@@ -1,5 +1,12 @@
 # GameVault App Changelog
 
+## 1.17.5
+Recommended Gamevault Server Version: `v16.1.2`
+### Changes
+- Bug fix: The required request headers for download resume and database backup were not sent.
+- Bug fix: You couldn't enter spaces for the password in the login window.
+- Bug fix: The session tokens were not properly persistent
+
 ## 1.17.4
 Recommended Gamevault Server Version: `v16.1.1`
 ### Changes

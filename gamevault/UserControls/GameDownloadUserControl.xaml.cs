@@ -178,12 +178,12 @@ namespace gamevault.UserControls
             ViewModel.DownloadFailedVisibility = System.Windows.Visibility.Hidden;
 
             if (!Directory.Exists(m_DownloadPath)) { Directory.CreateDirectory(m_DownloadPath); }
-            KeyValuePair<string, string>? header = null;
+            Dictionary<string,string> additionalRequestHeaders = new Dictionary<string,string>();
             if (SettingsViewModel.Instance.DownloadLimit > 0)
             {
-                header = new KeyValuePair<string, string>("X-Download-Speed-Limit", SettingsViewModel.Instance.DownloadLimit.ToString());
+                additionalRequestHeaders.Add("X-Download-Speed-Limit", SettingsViewModel.Instance.DownloadLimit.ToString());
             }
-            client = new HttpClientDownloadWithProgress($"{SettingsViewModel.Instance.ServerUrl}/api/games/{ViewModel.Game.ID}/download", m_DownloadPath, Path.GetFileName(ViewModel.Game.Path), header);
+            client = new HttpClientDownloadWithProgress($"{SettingsViewModel.Instance.ServerUrl}/api/games/{ViewModel.Game.ID}/download", m_DownloadPath, Path.GetFileName(ViewModel.Game.Path), additionalRequestHeaders);
             client.ProgressChanged += DownloadProgress;
             startTime = DateTime.Now;
             downloadSpeedCalc = new DownloadSpeedCalculator();
@@ -195,7 +195,6 @@ namespace gamevault.UserControls
             catch (Exception ex)
             {
                 IsDownloadActive = false;
-                client.Dispose();
                 ViewModel.State = $"Error: '{ex.Message}'";
                 ViewModel.DownloadUIVisibility = System.Windows.Visibility.Hidden;
                 ViewModel.DownloadFailedVisibility = System.Windows.Visibility.Visible;
@@ -314,7 +313,6 @@ namespace gamevault.UserControls
 
             UpdateDataSizeUI();
             ViewModel.DownloadUIVisibility = System.Windows.Visibility.Hidden;
-            client.Dispose();
             IsDownloadActive = false;
             ViewModel.State = "Downloaded";
             uiBtnExtract.IsEnabled = true;

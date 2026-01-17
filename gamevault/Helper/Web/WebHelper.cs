@@ -19,7 +19,7 @@ namespace gamevault.Helper
         {
             DefaultRequestHeaders = { { "User-Agent", "GameVault" } }
         };
-        private static RequestHeader[] AdditionalRequestHeaders;
+        private static List<RequestHeader> AdditionalRequestHeaders = new List<RequestHeader>();
         static WebHelper() { }
         internal static void SetCredentials(string serverUrl, string username, string password)
         {
@@ -47,7 +47,7 @@ namespace gamevault.Helper
         {
             return HttpClient.GetRefreshToken();
         }
-        internal static void SetAdditionalRequestHeaders(RequestHeader[] additionalRequestHeaders)
+        internal static void SetAdditionalDefaultRequestHeaders(List<RequestHeader> additionalRequestHeaders)
         {
             AdditionalRequestHeaders = additionalRequestHeaders;
 
@@ -62,40 +62,45 @@ namespace gamevault.Helper
         internal static async Task<string> BaseGetAsync(string url)
         {
             var response = await BaseHttpClient.GetAsync(url);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             return await response.Content.ReadAsStringAsync();
         }
         internal static async Task<string> BasePostAsync(string url, string payload)
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var response = await BaseHttpClient.PostAsync(url, content);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             return await response.Content.ReadAsStringAsync();
         }
         internal static async Task<string> BaseSendRequest(HttpRequestMessage request)
         {
             var response = await BaseHttpClient.SendAsync(request);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             return await response.Content.ReadAsStringAsync();
         }
         #endregion
         internal static async Task<string> GetAsync(string url)
         {
             var response = await HttpClient.GetAsync(url, AdditionalRequestHeaders);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             return await response.Content.ReadAsStringAsync();
         }
-        internal static async Task<HttpResponseMessage> GetAsync(string url, HttpCompletionOption option = HttpCompletionOption.ResponseContentRead)
+        internal static async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string>? additionalManualRequestHeaders = null, HttpCompletionOption option = HttpCompletionOption.ResponseContentRead)
         {
-            var response = await HttpClient.GetAsync(url, AdditionalRequestHeaders, option);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            List<RequestHeader> additionalHeaders = null;
+            if (additionalManualRequestHeaders is { Count: > 0 })
+            {
+                additionalHeaders = additionalManualRequestHeaders.Select(h => new RequestHeader { Name = h.Key, Value = h.Value }).Concat(AdditionalRequestHeaders).ToList();
+            }
+            var response = await HttpClient.GetAsync(url, additionalHeaders ?? AdditionalRequestHeaders, option);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             return response;
         }
         internal static async Task<string> PostAsync(string url, string payload)
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var response = await HttpClient.PostAsync(url, content, AdditionalRequestHeaders);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             return await response.Content.ReadAsStringAsync();
         }
 
@@ -109,20 +114,20 @@ namespace gamevault.Helper
         internal static async Task<string> DeleteAsync(string url)
         {
             var response = await HttpClient.DeleteAsync(url, AdditionalRequestHeaders);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             return await response.Content.ReadAsStringAsync();
         }
         public static async Task DownloadImageFromUrlAsync(string imageUrl, string cacheFile)
         {
             var response = await HttpClient.GetAsync(imageUrl, AdditionalRequestHeaders);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             var imageBytes = await response.Content.ReadAsByteArrayAsync();
             await File.WriteAllBytesAsync(cacheFile, imageBytes);
         }
         public static async Task<BitmapImage> DownloadImageFromUrlAsync(string imageUrl)
         {
             var response = await HttpClient.GetAsync(imageUrl, AdditionalRequestHeaders);
-           await WebExceptionHelper.EnsureSuccessStatusCode(response);
+            await WebExceptionHelper.EnsureSuccessStatusCode(response);
             var imageData = await response.Content.ReadAsByteArrayAsync();
             using (var memoryStream = new MemoryStream(imageData))
             {
@@ -135,13 +140,13 @@ namespace gamevault.Helper
                 return bitmap;
             }
         }
-        public static async Task<string> UploadFileAsync(string apiUrl, Stream imageStream, string fileName, RequestHeader[]? additionalHeaders = null)
+        public static async Task<string> UploadFileAsync(string apiUrl, Stream imageStream, string fileName, List<RequestHeader>? additionalHeaders = null)
         {
             //Mix request headers
-            RequestHeader[]? mixedHeaders = null;
+            List<RequestHeader>? mixedHeaders = null;
             if (additionalHeaders != null && AdditionalRequestHeaders != null)
             {
-                mixedHeaders = AdditionalRequestHeaders.Concat(additionalHeaders).ToArray();
+                mixedHeaders = AdditionalRequestHeaders.Concat(additionalHeaders).ToList();
             }
             else if (additionalHeaders == null)
             {
@@ -158,7 +163,7 @@ namespace gamevault.Helper
                 imageContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
                 formData.Add(imageContent, "file", fileName);
                 var response = await HttpClient.PostAsync(apiUrl, formData, mixedHeaders);
-               await WebExceptionHelper.EnsureSuccessStatusCode(response);
+                await WebExceptionHelper.EnsureSuccessStatusCode(response);
                 var responseContent = await response.Content.ReadAsStringAsync();
                 return responseContent;
             }
@@ -184,7 +189,7 @@ namespace gamevault.Helper
             }
             return sb.ToString();
         }
-        
+
     }
 }
 
