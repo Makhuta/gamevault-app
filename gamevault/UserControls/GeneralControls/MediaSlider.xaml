@@ -36,7 +36,7 @@
                 <ScaleTransform ScaleX="0.3" ScaleY="0.3"/>
             </mah:ProgressRing.RenderTransform>
         </mah:ProgressRing>
-        <Button Style="{StaticResource ButtonWrapper}" VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Hand" Width="25" Height="25" Margin="0,0,3,30" Click="PrevMedia_Click">
+        <Button Style="{StaticResource ButtonWrapper}" VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Hand" Width="25" Height="25" Margin="0,0,3,55" Click="PrevMedia_Click">
             <Grid Style="{DynamicResource HoverEffect}" Background="#02000000">
                 <!--#02000000-->
                 <Path Data="{StaticResource IconArrowBordered}" Fill="{DynamicResource MahApps.Brushes.ThemeForeground}" RenderTransformOrigin="0.52,0.5">
@@ -54,7 +54,7 @@
                 </Grid.RenderTransform>
             </Grid>
         </Button>
-        <Button Style="{StaticResource ButtonWrapper}" Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,30,3,0" Click="NextMedia_Click">
+        <Button Style="{StaticResource ButtonWrapper}" Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,30,3,25" Click="NextMedia_Click">
             <Grid Style="{DynamicResource HoverEffect}" Background="#02000000">
                 <Path Data="{StaticResource IconArrowBordered}" Fill="{DynamicResource MahApps.Brushes.ThemeForeground}" RenderTransformOrigin="0.5,0.5">
                     <Path.RenderTransform>
@@ -71,11 +71,40 @@
                 </Grid.RenderTransform>
             </Grid>
         </Button>
-        <Slider x:Name="uiVolumeSlider" Minimum="0" Maximum="1" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Thumb.DragCompleted="VolumeSlider_DragCompleted" PreviewMouseDown="DisableNonThumbInteraction"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,35" Orientation="Vertical" Height="70">
+        <Slider x:Name="uiVolumeSlider" Minimum="0" Maximum="1" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Thumb.DragCompleted="VolumeSlider_DragCompleted" PreviewMouseDown="DisableNonThumbInteraction"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,60" Orientation="Vertical" Height="70">
             <Slider.RenderTransform>
                 <ScaleTransform ScaleX="0.5" ScaleY="1"/>
             </Slider.RenderTransform>
         </Slider>
+        <Button Style="{StaticResource ButtonWrapper}"
+            Cursor="Hand"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Right"
+            Width="25"
+            Height="25"
+            Margin="0,0,3,30"
+            Click="MuteButton_Click">
+
+            <Grid Style="{DynamicResource HoverEffect}"
+                Background="#02000000">
+
+                <Viewbox Width="20"
+                    Height="20"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+                    <Path x:Name="MuteIcon"
+                        Data="{StaticResource IconReproductorMuted}"
+                        Fill="{DynamicResource MahApps.Brushes.ThemeForeground}"/>
+
+                </Viewbox>
+
+                <Grid.RenderTransform>
+                    <ScaleTransform/>
+                </Grid.RenderTransform>
+
+            </Grid>
+        </Button>
         <Button Style="{StaticResource ButtonWrapper}" Cursor="Hand" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,0,3,2" Click="MediaSliderFullscreen_Click">
             <Grid Style="{DynamicResource HoverEffect}"  Background="#02000000">
                 <Path Data="{StaticResource IconGameViewMaximize}" Fill="{DynamicResource MahApps.Brushes.ThemeForeground}" RenderTransformOrigin="-0.05,-0.05">

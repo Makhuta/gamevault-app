@@ -4,11 +4,13 @@ using gamevault.ViewModels;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace gamevault.UserControls
 {
@@ -19,6 +21,7 @@ namespace gamevault.UserControls
     {
         private List<Tuple<string, string>> MediaUrls = new List<Tuple<string, string>>();
         private int mediaIndex = 0;
+        private double previousVolume = 0.0;
         private bool isMediaSliderFullscreen = false;
         private Grid webViewAnchor;
         public MediaSlider()
@@ -92,6 +95,8 @@ namespace gamevault.UserControls
             if (double.TryParse(lastMediaVolume.Replace(".", ","), out double volume))
             {
                 uiVolumeSlider.Value = volume;
+                previousVolume = volume == 0.0 ? 1.0 : volume;
+                MuteButtonIcon_Change(volume);
                 string restoreLastMediaVolumeScript = @"
     if (typeof audio !== 'undefined' && audio) {
         audio.volume = " + lastMediaVolume + @";
@@ -112,6 +117,8 @@ namespace gamevault.UserControls
                 if (uiWebView == null || uiWebView.CoreWebView2 == null)
                     return;
 
+                MuteButtonIcon_Change(result);
+
                 string setAndSaveMediaVolumeScript = @"
     if(typeof audio !== 'undefined' && audio) {
         audio.volume=" + result + @";
@@ -123,6 +130,54 @@ namespace gamevault.UserControls
 
             }
             catch { }
+        }
+        private async void MuteButtonIcon_Change(double volume)
+        {
+            if (volume == 0.0)
+            {
+                MuteIcon.Data = (Geometry)FindResource("IconReproductorMuted");
+            }
+            else
+            {
+                if (volume > 0.66)
+                {
+                    MuteIcon.Data = (Geometry)FindResource("IconReproductor");
+                    return;
+                }
+                if (volume > 0.33)
+                {
+                    MuteIcon.Data = (Geometry)FindResource("IconReproductorMid");
+                    return;
+                }
+                MuteIcon.Data = (Geometry)FindResource("IconReproductorLow");
+            }
+        }
+        
+        private async void MuteButtonIcon_Change(string volume)
+        {
+            if(double.TryParse(volume, CultureInfo.InvariantCulture, out double result))
+            {
+                MuteButtonIcon_Change(result);
+            } else
+            {
+                return;
+            }
+        }
+        private async void MuteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (uiVolumeSlider.Value > 0)
+            {
+                previousVolume = uiVolumeSlider.Value;
+                uiVolumeSlider.Value = 0;
+                MuteButtonIcon_Change(0);
+            }
+            else
+            {
+                uiVolumeSlider.Value = previousVolume;
+                MuteButtonIcon_Change(previousVolume);
+            }
+
+            await SetAndSaveMediaVolume();
         }
         private async void VolumeSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
