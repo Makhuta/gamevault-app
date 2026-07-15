@@ -2,6 +2,8 @@
 
 # GameVault Application
 
+(This is custom fork that removes some icons from main window)
+
 ## Introduction
 
 **What is GameVault?**  
