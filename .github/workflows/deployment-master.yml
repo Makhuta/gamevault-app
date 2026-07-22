@@ -1,37 +1,46 @@
 name: Deployment Pipeline for master branch
+
 on:
   push:
     branches:
       - master
+
 jobs:
   deploy:
     permissions: write-all
     runs-on: windows-latest
-    outputs:
-      version: ${{ steps.release.outputs.version }}
-    
+
     steps:
     - name: Checkout repository
-      id: checkout
-      uses: actions/checkout@v2
-      
+      uses: actions/checkout@v4
+
     - name: Set up .NET
-      id: setup
-      uses: actions/setup-dotnet@v3.2.0
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
-        
-    - name: Build .NET solution
-      id: build
-      run: |
-        dotnet build gamevault.sln --configuration Release
-        7z a GameVault.zip gamevault/bin
 
-    - name: Upload Action Artifact
+    - name: Publish GameVault
+      run: |
+        dotnet publish gamevault/gamevault.csproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          --output publish
+
+    - name: Install Inno Setup
+      run: |
+        choco install innosetup -y
+
+    - name: Build installer
+      run: |
+        iscc installer.iss
+
+    - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
       with:
-        path: GameVault.zip
-        compression-level: 9
+        name: GameVaultSetup
+        path: Output/GameVaultSetup.exe
         retention-days: 90
 
     - name: Create GitHub Release
@@ -39,8 +48,6 @@ jobs:
       with:
         tag_name: v${{ github.run_number }}
         name: Release v${{ github.run_number }}
-        files: GameVault.zip
+        files: Output/GameVaultSetup.exe
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        
-
